@@ -17,6 +17,8 @@ This flake does that build for NixOS: it takes Vencord from nixpkgs, adds every 
 nix run github:Fractal-Tess/vencord-flake
 ```
 
+Discord runs on x86_64 Linux. The custom Vencord bundle also builds on ARM64 Linux, where upstream Discord has no native application. Both outputs are checked on native GitHub runners.
+
 ## Install on NixOS
 
 ```nix

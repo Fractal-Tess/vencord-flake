@@ -22,22 +22,33 @@
         };
     in
     {
-      packages = forAllSystems (system: {
-        inherit (pkgsFor system) vencord discord;
-        default = self.packages.${system}.discord;
-      });
+      packages = forAllSystems (
+        system:
+        {
+          inherit (pkgsFor system) vencord;
+          default = if system == "x86_64-linux" then (pkgsFor system).discord else (pkgsFor system).vencord;
+        }
+        // nixpkgs.lib.optionalAttrs (system == "x86_64-linux") {
+          inherit (pkgsFor system) discord;
+        }
+      );
 
-      apps = forAllSystems (system: {
-        default = {
-          type = "app";
-          program = nixpkgs.lib.getExe self.packages.${system}.discord;
-          meta.description = "Run Discord with Vencord and the plugins";
-        };
-      });
+      # Upstream Discord ships no Linux ARM64 application.
+      apps.x86_64-linux.default = {
+        type = "app";
+        program = nixpkgs.lib.getExe self.packages.x86_64-linux.discord;
+        meta.description = "Run Discord with Vencord and the plugins";
+      };
 
-      checks = forAllSystems (system: {
-        inherit (self.packages.${system}) vencord discord;
-      });
+      checks = forAllSystems (
+        system:
+        {
+          inherit (self.packages.${system}) vencord;
+        }
+        // nixpkgs.lib.optionalAttrs (system == "x86_64-linux") {
+          inherit (self.packages.${system}) discord;
+        }
+      );
 
       formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.nixfmt);
 
