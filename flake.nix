@@ -36,14 +36,17 @@
       });
 
       checks = forAllSystems (system: {
-        inherit (self.packages.${system}) vencord;
+        inherit (self.packages.${system}) vencord discord;
       });
 
       formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.nixfmt);
 
       overlays.default = final: previous: {
         vencord = final.callPackage ./packages/vencord.nix { inherit (previous) vencord; };
-        discord = previous.discord.override { withVencord = true; };
+        discord = previous.discord.override {
+          withVencord = true;
+          vencord = final.vencord;
+        };
       };
 
       nixosModules.default = import ./modules/nixos.nix { flake = self; };
